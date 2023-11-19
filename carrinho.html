@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrinho</title>
+  <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/header.css">
+  <link rel="stylesheet" href="assets/form.css">
+  <style>
+    .lista-carrinho {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+
+      >article {
+        background-color: white;
+        padding: 16px 25px 16px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0px 3px 10px -1px rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+
+        >img {
+          border-radius: 9px;
+          height: 56.631px;
+          flex-shrink: 0;
+          margin-right: 34px;
+        }
+
+        >.info {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+          width: 200px;
+
+          >h3 {
+            color: #000;
+            font-size: 21px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+          }
+
+          >p {
+            color: #444;
+            font-size: 17px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+          }
+        }
+
+        >.quantidade-area {
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+
+          >label {
+            color: #797979;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+          }
+
+          >input {
+            border-radius: 5px;
+            background: #F2F2F2;
+            height: 36px;
+            padding: 6px 4px 6px 12px;
+            color: #000;
+            font-size: 20px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: normal;
+            width: 122px;
+            border: none;
+          }
+        }
+
+        >.remove {
+          width: 45px;
+          height: 45px;
+          border-radius: 50%;
+          background: #eb4747;
+          flex-shrink: 0;
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          &:hover {
+            cursor: pointer;
+            background: #d13e3e;
+          }
+        }
+      } 
+    }
+
+    .total-area {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 20px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+      color: #3200BF;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+  </style>
+  <script src="js/base.js"></script>
+</head>
+
+<body>
+  <html-import link="modules/header.html"></html-import>
+
+  <section style="margin: 40px;padding-left: 20px;padding-right: 20px;display: flex;flex-direction: column;gap: 25px; max-width: 700px;margin-left: auto; margin-right: auto;">
+    <h2 class="title-one">Carrinho</h2>
+
+    <div class="lista-carrinho"> </div>
+
+
+
+    <p id="cart-empty" style="display: none; text-align: center;">Adicione items ao carrinho</p>
+    <div class="total-area">
+      <p>TOTAL:</p>
+      <p>R$ 0,00</p>
+    </div>
+    <button id="go-to-address" class="primary-button-with-icon-end">
+      <p>CONTINUAR</p>
+      <img src="assets/img/icon-next.svg" alt="ícone de adicionar">
+    </button>
+  </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const totalArea = document.querySelector('.total-area')
+      const button = document.querySelector('button')
+
+      function checkCart() {
+        if (localStorage.getItem('cart')) {
+          let cartList = JSON.parse(localStorage.getItem('cart'))
+          cartList.forEach(item => {
+            const article = document.createElement('article')
+            article.setAttribute('data-product-id', item.product.id)
+            
+            article.innerHTML = `
+            <img src="${item.product.imageUrl}" alt="café">
+            <div class="info">
+              <h3>${item.product.title}</h3>
+              <p>R$ ${item.product.price}</p>
+            </div>
+            <div class="quantidade-area">
+              <label for="quantidade-one">QTD:</label>
+              <input type="number" id="quantidade-one" class="quantity" value="${item.quantity}" min="1">
+            </div>
+            <button class="remove">
+              <img src="assets/img/icon-trash.svg" alt="ícone de lixeira">
+            </button>`
+            document.querySelector('.lista-carrinho').appendChild(article)
+
+            const removeButton = article.querySelector('.remove')
+            const quantityInput = article.querySelector('.quantity')
+            removeButton.addEventListener('click', () => {
+              let cartList = JSON.parse(localStorage.getItem('cart'))
+              cartList = cartList.filter(item => item.product.id !== parseInt(article.dataset.productId))
+              localStorage.setItem('cart', JSON.stringify(cartList))
+              let totalQuantityCount = cartList.reduce((acc, item) => acc + item.quantity, 0);
+              document.getElementById('cart-quantity').innerText = totalQuantityCount;
+              article.remove()
+              updateTotal()
+            })
+            quantityInput.addEventListener('change', () => {
+              let cartList = JSON.parse(localStorage.getItem('cart'))
+              cartList.forEach(item => {
+                if (item.product.id === parseInt(article.dataset.productId)) {
+                  item.quantity = parseInt(quantityInput.value)
+                }
+              })
+              let totalQuantityCount = cartList.reduce((acc, item) => acc + item.quantity, 0);
+              document.getElementById('cart-quantity').innerText = totalQuantityCount;
+              localStorage.setItem('cart', JSON.stringify(cartList))
+              updateTotal()
+            })
+          })
+
+        }
+      }
+
+      function updateTotal() {
+        let articles = document.querySelectorAll('article')
+
+        let total = 0
+
+        articles.forEach(article => {
+          const quantity = article.querySelector('.quantity').value
+          const price = article.querySelector('p').innerText.replace('R$ ', '').replace(',', '.')
+          total += quantity * price
+        })
+
+        totalArea.lastElementChild.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`
+
+        if (total > 0) {
+          button.removeAttribute('disabled')
+          document.getElementById('cart-empty').style.display = 'none'
+          
+        } else {
+          button.setAttribute('disabled', 'disabled')
+          document.getElementById('cart-empty').style.display = 'block'
+        }
+      }
+
+      button.addEventListener('click', () => {
+        window.location.href = 'endereço.html'
+      })
+      checkCart()
+      updateTotal()
+    })
+  </script>
+</body>
+
+</html>

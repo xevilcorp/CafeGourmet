@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/header.css">
+  <link rel="stylesheet" href="assets/form.css">
+  <script src="js/base.js"></script>
+</head>
+
+<body>
+  <html-import link="modules/header.html"></html-import>
+
+  <form onsubmit="return false" style="margin: 40px;padding-left: 20px;padding-right: 20px;display: flex;flex-direction: column;gap: 25px; max-width: 700px;margin-left: auto; margin-right: auto;">
+    <h2 class="title-one">Login</h2>
+    <div class="input-block">
+      <label for="email">Email</label>
+      <input type="email" name="email" id="email">
+    </div>
+    <div class="input-block">
+      <label for="password">Senha</label>
+      <input type="password" name="password" id="password">
+    </div>
+
+    <div class="error-area"></div>
+
+    <button class="primary-button">ENTRAR</button>
+    <a class="link-login-center" href="registro.html">Já tem conta? Registre-se por aqui.</a>
+  </form>
+</body>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('form');
+    const inputs = form.querySelectorAll('input');
+    const button = form.querySelector('button');
+    const errorArea = form.querySelector('.error-area');
+
+    async function tryToLoginUser() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      errorArea.innerHTML = '';
+      button.disabled = true;
+
+
+      try {
+        if (!email || !password) {throw '<p>Preencha todos os campos.</p>'}
+        let inputData = {email, password}
+        let method = 'POST'
+        let headers = { 'Content-Type': 'application/json' }
+        let url = window.apiUrl + 'User/login'
+        let response = await fetch(url, { method, headers, body: JSON.stringify(inputData) })
+        if (!response.ok) {errorArea.innerHTML = '<p>Não foi possível fazer o login, verifique os dados.</p>'; return }
+        let data = await response.json()
+        localStorage.setItem('token', data.token);
+        window.location.href = getParam('redirect') ?? 'index.html';
+      } catch (error) {
+        errorArea.innerHTML = `<p>${error}</p>`;
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    button.addEventListener('click', tryToLoginUser);
+    
+  });
+</script>
+</html>

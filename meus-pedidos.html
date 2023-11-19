@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meus pedidos</title>
+
+  <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/header.css">
+  <link rel="stylesheet" href="assets/form.css">
+  <style>
+    #products-table {
+      border: 1px solid rgba(189, 189, 189, 0.698);
+      border-radius: 10px;
+
+      >table {
+        width: 100%;
+        border-collapse: collapse;
+
+        >thead {
+          >tr {
+            >th {
+              padding-top: 10px;
+              padding-left: 10px;
+              text-align: left;
+              padding-bottom: 10px;
+              text-transform: uppercase;
+              border-bottom: 1px solid rgba(189, 189, 189, 0.698);
+            }
+          }
+        }
+
+        >tbody {
+          >tr {
+            >td {
+              padding-left: 10px;
+              padding-top: 10px;
+              padding-bottom: 10px;
+              text-align: left;
+              border-bottom: 1px solid rgba(0, 0, 0, 0.093);
+
+              >img {
+                border-radius: 10px;
+              }
+            }
+          }
+        }
+      }
+    }
+  </style>
+  <script src="js/base.js"></script>
+</head>
+
+<body>
+  <html-import link="modules/header.html"></html-import>
+
+  <main
+    style="margin: 40px;padding-left: 20px;padding-right: 20px;display: flex;flex-direction: column;gap: 25px; max-width: 1000px;margin-left: auto; margin-right: auto;">
+    <h2 class="title-one">Meus pedidos</h2>
+
+    <!--product table with code, image, name, price and delete button-->
+    <div id="products-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Id</th>
+            <th>Data</th>
+            <th>Preço</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+      document.addEventListener("loginChecked", () => {
+        if (window.user === undefined) logout();
+      })
+
+      async function getOrders() {
+        let url = window.apiUrl + 'ProductOrder';
+        let method = 'GET'
+        let headers = { 'Authorization': 'Bearer ' + localStorage.getItem('token'), 'Content-Type': 'application/json' }
+        let response = await fetch(url, { method, headers })
+        let data = await response.json()
+        return data
+      }
+
+      async function renderOrderRows() {
+        let orders = await getOrders();
+        let table = document.getElementById('products-table');
+        table.querySelector('tbody').innerHTML = '';
+        orders.forEach(order => {
+
+          let row = document.createElement('tr');
+          row.setAttribute('data-order-id', order.id);
+          const total = order.orderItems.reduce((acc, item) => acc + (item.product.price * item.quantity), 0)
+          row.innerHTML = `
+          <td>${order.id.toString().padStart(3, '0')}</td>
+          <td>${order.createdAt.replace('T', ' ')}</td>
+          <td>${total.toFixed(2)}</td>
+          <td style="color: ${getStatusColor(order.status)}">${getOrderStatus(order.status)}</td>
+          <td><a href="pedido.html?id=${order.id}" style="text-decoration:none">Ver detalhes</a></td>`
+
+          table.querySelector('tbody').appendChild(row);
+        })
+      }
+    
+      renderOrderRows();
+    })
+  </script>
+</body>
+
+</html>

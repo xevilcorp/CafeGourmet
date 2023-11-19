@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Endereço</title>
+  <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/header.css">
+  <link rel="stylesheet" href="assets/form.css">
+  <script src="js/base.js"></script>
+</head>
+
+<body>
+  <html-import link="modules/header.html"></html-import>
+
+  <form onsubmit="return false" style="margin: 40px;padding-left: 20px;padding-right: 20px;display: flex;flex-direction: column;gap: 25px; max-width: 700px;margin-left: auto; margin-right: auto;">
+    <h2 class="title-one"  style="margin-top: 20px;">Endereço de Entrega</h2>
+    <div class="input-block">
+      <label for="zipCode">CEP</label>
+      <input type="text" name="zipCode" id="zipCode">
+      <a class="field-button" href="https://buscacepinter.correios.com.br/app/endereco/index.php">      
+        <img src="assets/img/icon-search.svg" alt="ícone de lupa">
+      </a>
+    </div>
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <div class="input-block" style="width: 200px;">
+        <label for="state">ESTADO</label>
+        <select name="state" id="state">
+          <option value="AC">AC</option>
+          <option value="AL">AL</option>
+          <option value="AP">AP</option>
+          <option value="AM">AM</option>
+          <option value="BA">BA</option>
+          <option value="CE">CE</option>
+          <option value="DF">DF</option>
+          <option value="ES">ES</option>
+          <option value="GO">GO</option>
+          <option value="MA">MA</option>
+          <option value="MT">MT</option>
+          <option value="MS">MS</option>
+          <option value="MG">MG</option>
+          <option value="PA">PA</option>
+          <option value="PB">PB</option>
+          <option value="PR">PR</option>
+          <option value="PE">PE</option>
+          <option value="PI">PI</option>
+          <option value="RJ">RJ</option>
+          <option value="RN">RN</option>
+          <option value="RS">RS</option>
+          <option value="RO">RO</option>
+          <option value="RR">RR</option>
+          <option value="SC">SC</option>
+          <option value="SP" selected>SP</option>
+          <option value="SE">SE</option>
+          <option value="TO">TO</option>
+        </select>
+      </div>
+      <div class="input-block" style="width: auto; flex: 1 0 auto;">
+        <label for="city">CIDADE</label>
+        <input type="text" name="city" id="city">
+      </div>
+    </div>
+    <div class="input-block">
+      <label for="neighborhood">BAIRRO</label>
+      <input type="text" name="neighborhood" id="neighborhood">
+    </div>
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <div class="input-block" style="width: auto; flex: 1 0 auto;">
+        <label for="street">RUA</label>
+        <input type="text" name="street" id="street">
+      </div>
+      <div class="input-block" style="width: 200px;">
+        <label for="number">NÚM.</label>
+        <input type="text" name="number" id="number">
+
+      </div>
+    </div>
+    <div class="input-block">
+      <label for="information">COMPLEMENTO</label>
+      <input type="text" name="information" id="information">
+    </div>
+
+    <div class="error-area"></div>
+
+    <button class="primary-button-with-icon-end" style="margin-top: 20px;">
+      <p>CONTINUAR</p>
+      <img src="assets/img/icon-next.svg" alt="ícone de adicionar">
+    </button>
+  </form>
+
+  
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const button = document.querySelector('button')
+      const inputs = document.querySelectorAll('input')
+      const errorArea = document.querySelector('.error-area')
+      const zipCode = document.getElementById('zipCode')
+
+      document.addEventListener("loginChecked", () => {
+        if (window.user === undefined) logout();
+      })
+
+      function validate() {
+        let valid = true
+        inputs.forEach(input => {
+          if (!input.value && input.id !== 'information') {
+            valid = false
+          }
+        })
+        return valid
+      }
+
+      button.addEventListener('click', () => {
+        if (validate()) {
+          window.location.href = 'pagamento.html'
+          let address = {
+            zipCode: zipCode.value,
+            state: document.getElementById('state').value,
+            city: document.getElementById('city').value,
+            neighborhood: document.getElementById('neighborhood').value,
+            street: document.getElementById('street').value,
+            number: document.getElementById('number').value,
+            information: document.getElementById('information').value
+          }
+          localStorage.setItem('address', JSON.stringify(address))
+        } else {
+          errorArea.innerHTML = '<p>Preencha todos os campos.</p>'
+        }
+      })
+
+      $('#zipCode').mask('00000-000')
+      zipCode.addEventListener('input', async () => {
+        if (zipCode.value.length >= 9) {
+          let zipCodeValue = zipCode.value.replace('-', '')
+          const url = `https://viacep.com.br/ws/${zipCodeValue}/json/`
+          const response = await fetch(url)
+          const data = await response.json()
+          document.getElementById('state').value = data.uf
+          document.getElementById('city').value = data.localidade
+          document.getElementById('neighborhood').value = data.bairro
+          document.getElementById('street').value = data.logradouro
+        }
+      })
+    
+      if (localStorage.getItem('address')) {
+        const address = JSON.parse(localStorage.getItem('address'))
+        document.getElementById('zipCode').value = address.zipCode
+        document.getElementById('state').value = address.state
+        document.getElementById('city').value = address.city
+        document.getElementById('neighborhood').value = address.neighborhood
+        document.getElementById('street').value = address.street
+        document.getElementById('number').value = address.number
+        document.getElementById('information').value = address.information
+      }
+    })
+  </script>
+</body>
+
+</html>

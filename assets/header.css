@@ -1,0 +1,123 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
+header {
+  border-radius: 12px;
+  background: #F0EEE7;
+  display: flex;
+  align-items: center;
+  padding: 30px;
+  justify-content: space-between;
+
+  >.header-link { 
+    text-decoration: none;
+    font-family: 'Bebas Neue', sans-serif;        
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 37px;
+    color: #830baf;
+    /*border: 3px dashed rgba(116, 2, 151, 0.176);*/
+    /*text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.146);*/
+    line-height: 34px;
+    padding: 4px 8px 2px 8px;
+  }
+
+  .right-area {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+
+    #my-account {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      text-decoration: none;
+      color: #000;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: normal;
+      padding: 15px;
+      margin: -15px;
+      padding-right: 18px;
+      border-radius: 10px;
+
+      &:hover {
+        background-color: rgba(0,0,0,0.05);
+        transition: all .3s;
+      }
+
+      >.admin-mode {
+        >.p-title {
+          color: #000;
+          font-size: 12px;
+          font-style: normal;
+          font-weight: 400;
+          line-height: normal;
+          margin: 0;
+        }
+
+        >.bottom {
+          margin-top: 0px;
+          display: flex;
+          align-items: center;
+          gap: 3px;
+          >p {
+            color: #F90;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: normal;
+            margin-bottom: -4px;
+          }
+        }
+      }
+    }
+
+    #login-btn {
+      border-radius: 30px;
+      width: 137px;
+      height: 49px;
+      background: #E1E1E1;
+      color: #53458B;
+      font-weight: 600;
+      font-size: 13px;
+      text-align: center;
+      border: none;
+      display: block;
+      text-decoration: none;
+      line-height: 49px;
+    }
+
+    #login-btn:hover {
+      background: #53458B;
+      color: white;
+    }
+
+    #cart-btn {
+      width: 38px;
+      height: 30px;
+      flex-shrink: 0;
+      display: block;
+      position: relative;
+      text-decoration: none;
+      margin-right: 10px;
+
+      .badge {
+        display: flex;
+        width: 16px;
+        height: 16px;
+        justify-content: center;
+        align-items: center;
+        flex-shrink: 0;
+        font-size: 11px;
+        font-weight: 500;
+        background-color: red;
+        color: white;
+        line-height: 16px;
+        border-radius: 50%;
+        position: absolute;
+        top: -5px;
+        right: -5px;
+      }
+    }
+  }
+}

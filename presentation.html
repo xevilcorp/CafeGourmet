@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apresentação</title>
+
+  <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/header.css">
+  <link rel="stylesheet" href="assets/form.css">
+  <style>
+    #grade-catalogo {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(248px, 1fr));
+      gap: 40px;
+
+      >article {
+        padding: 19px;
+        background-color: white;
+        box-shadow: 0px 3px 10px -4px rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+
+        >img {
+          width: 100%;
+          border-radius: 9px;
+          height: 194px;
+          object-fit: cover;
+        }
+
+        >.bottom-area {
+          margin-top: 9px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+
+          >.info-area {
+            >h3 {
+              color: #000;
+              font-size: 21px;
+              font-style: normal;
+              font-weight: 400;
+              line-height: normal;
+            }
+            >p {
+              color: #444;
+              font-size: 17px;
+              font-style: normal;
+              font-weight: 400;
+              line-height: normal;
+            }
+          }
+
+          >.add-to-cart {
+            width: 43px;
+            height: 43px;
+            flex-shrink: 0;
+            background-color: #61CB6C;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            &:hover {
+              cursor: pointer;
+              background-color: #4FB65C;
+            }
+
+            >img {
+              width: 24px;
+              height: 24px;
+              flex-shrink: 0;
+            }
+          }
+        }
+
+      }
+    }
+  </style>
+  <script src="js/base.js"></script>
+</head>
+
+<body>
+  <html-import link="modules/header.html"></html-import>
+
+  <main style="margin: 40px;padding-left: 20px;padding-right: 20px;display: flex;flex-direction: column;gap: 25px;margin-left: auto; margin-right: auto;">
+    <h2 class="title-one">Apresentação</h2>
+
+    <video src="assets/presentation.mp4" controls style="width: 100%; max-width: 1000px;"></video>
+  </main>
+
+
+</body>
+
+</html>

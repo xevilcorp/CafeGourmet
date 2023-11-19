@@ -1,0 +1,21 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Nunito', sans-serif;
+}
+
+body {
+    font-size: 20px;
+    line-height: 1.5;
+    color: #333;
+    padding: 20px;
+}
+
+.title-one {
+  color: #513ae2;
+  font-size: 26px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+}

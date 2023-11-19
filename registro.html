@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro</title>
+  <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/header.css">
+  <link rel="stylesheet" href="assets/form.css">
+  <script src="js/base.js"></script>
+</head>
+
+<body>
+  <html-import link="modules/header.html"></html-import>
+
+  <form onsubmit="return false"
+    style="margin: 40px;padding-left: 20px;padding-right: 20px;display: flex;flex-direction: column;gap: 25px; max-width: 700px;margin-left: auto; margin-right: auto;">
+    <h2 class="title-one">Registro</h2>
+    <div class="input-block">
+      <label for="name">Nome</label>
+      <input type="text" name="name" id="name">
+    </div>
+    <div class="input-block">
+      <label for="email">Email</label>
+      <input type="email" name="email" id="email">
+    </div>
+    <div class="input-block">
+      <label for="cpf">CPF</label>
+      <input type="text" name="cpf" id="cpf" placeholder="000.000.000-00">
+    </div>
+    <div class="input-block">
+      <label for="password">Senha</label>
+      <input type="password" name="password" id="password">
+    </div>
+    <div class="input-check">
+      <input type="checkbox" name="terms" id="terms">
+      <label for="terms">Concordo com os termos de uso.</label>
+    </div>
+
+    <div class="error-area"></div>
+
+    <button class="primary-button">CRIAR CONTA</button>
+    <a class="link-login-center" href="login.html">Já tem conta? Faça login por Aqui.</a>
+  </form>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.querySelector('form');
+      const inputs = form.querySelectorAll('input');
+      const button = form.querySelector('button');
+      const cpf = document.getElementById('cpf')
+      const errorArea = document.querySelector('.error-area')
+
+      function validate() {
+        let valid = true
+        inputs.forEach(input => { if (!input.value) { valid = false } })
+        if (!valid) { button.setAttribute('disabled', 'disabled') }
+        else { button.removeAttribute('disabled') }
+      }
+
+      async function tryToLoginUser() {
+        errorArea.innerHTML = ''
+        button.setAttribute('disabled', 'disabled')
+        button.innerHTML = 'Redirecionando...'
+
+        try {
+          let url = window.apiUrl + 'User/login'
+          let data = {
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value
+          }
+          let method = 'POST'
+          let headers = { 'Content-Type': 'application/json' }
+          let response = await fetch(url, { method, headers, body: JSON.stringify(data) })
+          if (response.status == 200) {
+            let data = await response.json()
+            localStorage.setItem('token', data.token);
+            window.location.href = getParam('redirect') ?? 'index.html';
+          } else {
+            errorArea.innerHTML = '<p>Erro ao redirecionar para o login</p>'
+          }
+        }
+        catch (error) {
+          errorArea.innerHTML = '<p>Erro ao redirecionar para o login</p>'
+          errorArea.innerHTML += '<p>' + error + '</p>'
+          return
+        }
+        finally {
+          button.removeAttribute('disabled')
+          button.innerHTML = 'CRIAR CONTA'
+        }
+
+      }
+
+      async function registerUser() {
+        let url = window.apiUrl + 'User/register'
+        errorArea.innerHTML = ''
+        button.setAttribute('disabled', 'disabled')
+        button.innerHTML = 'Aguarde...'
+
+        //check terms checkbox
+        if (!document.getElementById('terms').checked) {
+          errorArea.style.display = 'block'
+          errorArea.innerHTML = '<p>Você precisa aceitar os termos de uso</p>'
+          button.removeAttribute('disabled')
+          button.innerHTML = 'CRIAR CONTA'
+          return
+        }
+
+        let data = {
+          name: document.getElementById('name').value,
+          email: document.getElementById('email').value,
+          cpf: document.getElementById('cpf').value,
+          password: document.getElementById('password').value
+        }
+
+        try {
+          let method = 'POST'
+          let headers = { 'Content-Type': 'application/json', 'Accept-Language': 'pt-BR' }
+          let response = await fetch(url, { method, headers, body: JSON.stringify(data) })
+          if (response.status == 200) {
+            tryToLoginUser()
+          } else {
+            let errorList = await response.json()
+            errorArea.style.display = 'block'
+            errorArea.innerHTML = errorList.map(error => `<p>${error.description}</p>`).join('')
+          }
+        } catch (error) {
+          errorArea.style.display = 'block'
+          errorArea.innerHTML = '<p>Erro ao cadastrar</p>'
+          errorArea.innerHTML += '<p>' + error + '</p>'
+          return
+        }
+        finally {
+          button.removeAttribute('disabled')
+          button.innerHTML = 'CRIAR CONTA'
+        }
+      }
+
+      $(cpf).mask('000.000.000-00', { reverse: true })
+      inputs.forEach(input => { input.addEventListener('input', validate) })
+
+      button.addEventListener('click', registerUser)
+      validate()
+    })
+  </script>
+</body>
+
+</html>

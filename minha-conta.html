@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cafeteria Gourmet</title>
+
+  <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/header.css">
+  <link rel="stylesheet" href="assets/form.css">
+  <style>
+    main {
+      margin: 40px;
+      padding-left: 20px;
+      padding-right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+
+      >#admin-area {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+        border-radius: 12px;
+        color: rgb(255, 136, 0);
+        >a {
+          background: linear-gradient(40deg, rgb(255, 136, 0), rgb(207, 118, 17)) ;
+          color: white;
+          &:hover {
+            filter: brightness(1.1) ;
+            cursor: pointer;
+          }
+        
+        }
+      }
+    }
+
+
+  </style>
+  <script src="js/base.js"></script>
+</head>
+
+<body>
+  <html-import link="modules/header.html"></html-import>
+
+  <main>
+    <h2 class="title-one">Minha Conta</h2>
+
+    <table>
+      <tbody>
+        <tr style="text-align: left;">
+          <th>Nome:</th>
+          <td class="field-name"></td>
+        </tr>
+        <tr style="text-align: left;">
+          <th>Email:</th>
+          <td class="field-email"></td>
+        </tr>
+        <tr style="text-align: left;">
+          <th>CPF:</th>
+          <td class="field-cpf"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <a href="editar-dados-pessoais.html" class="primary-button light" style="display: flex; text-decoration: none;align-items: center;justify-content: center;">Editar dados</a>
+    <a href="meus-pedidos.html" class="primary-button light" style="margin-top: 10px; display: flex; text-decoration: none;align-items: center;justify-content: center;">Meus Pedidos</a>
+    <div id="admin-area" style="display: none;">
+      <a href="meus-produtos.html" class="primary-button light" style=" display: flex; text-decoration: none;align-items: center;justify-content: center;">Meus produtos</a>
+      <a href="pedidos.html" class="primary-button light" style="display: flex; text-decoration: none;align-items: center;justify-content: center;" >Acompanhar pedidos</a>
+      <a href="novo-produto.html" class="primary-button light" style="display: flex; text-decoration: none;align-items: center;justify-content: center;">Cadastrar novo produto</a>
+    </div>
+    <button class="primary-button-with-icon red light logout">
+      <p>🙁 Deslogar</p>  
+    </button>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const logoutButton = document.querySelector('.logout');
+
+      function addDetailsToPage() {
+        if(window.user === undefined) logout();
+
+        const name = document.querySelector('.field-name');
+        const email = document.querySelector('.field-email');
+        const cpf = document.querySelector('.field-cpf');
+
+        name.innerHTML = window.user.name;
+        email.innerHTML = window.user.email;
+        cpf.innerHTML = window.user.cpf;
+
+        if(window.user.admin) {
+          document.querySelector('#admin-area').style.display = 'flex';
+        }
+      }
+
+      logoutButton.addEventListener('click', logout)
+      
+      document.addEventListener("loginChecked", addDetailsToPage)
+    })
+  </script>
+</body>
+
+</html>

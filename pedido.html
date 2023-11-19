@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrinho</title>
+  <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/header.css">
+  <link rel="stylesheet" href="assets/form.css">
+  <style>
+  #resume-table {
+      margin-top: -10px;
+      >table {
+        width: 100%;
+        border-collapse: collapse;
+        border-top: 1px solid rgba(0, 0, 0, 0.093);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.093);
+        >tbody {
+          >tr {
+            >td {
+              padding-top: 15px;
+              padding-bottom: 15px;
+              text-align: left;
+              border-bottom: 1px solid rgba(0, 0, 0, 0.093);
+              /*&:nth-child(1) {
+                border-left: 1px solid rgba(0, 0, 0, 0.093);
+              }*/
+
+              &:nth-child(3) {
+                text-align: end;
+              }
+              >img {
+                border-radius: 10px;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    #area-status{
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 14px;
+      text-transform: uppercase;
+      >.image-icon {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: 1px solid rgb(226, 226, 226);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        >img {
+          width: 16px;
+        }
+      }
+    }
+  </style>
+  <script src="js/base.js"></script>
+</head>
+
+<body>
+  <html-import link="modules/header.html"></html-import>
+
+  <section style="margin: 40px;padding-left: 20px;padding-right: 20px;display: flex;flex-direction: column;gap: 25px; max-width: 700px;margin-left: auto; margin-right: auto;">
+    <h2 class="title-one" style="display:flex;gap:30px; justify-content: space-between;">
+      <span>Pedido <span id="OrderNumber"></span></span> 
+      <div id="area-status">
+        
+      </div>
+    </h2>
+
+    <div id="confirmation-area" style="display: none; background-color: azure; border-radius: 12px;padding: 40px 20px;">
+      <div style="display: flex;align-items: center;gap: 20px;justify-content: center;">
+        <img src="assets/img/checked.png" alt="ícone de check" width="60">
+        <p style="font-size: 20px;">PEDIDO CONFIRMADO!</p>
+      </div>
+      <p style="
+      color: #26569E;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 400;
+      margin-top: 20px;">
+      Aguarde, seu pedido logo será entregue.
+      </p>
+    </div>
+   
+    <h2 class="title-one" style="margin-top: 20px;">Resumo da Compra</h2>
+
+    <div id="resume-table">
+      <table>
+        <tbody>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2" style="text-align: left;padding: 20px 0px; font-weight: bold;">Total:</td>
+            <td class="total-area" colspan="2" style="text-align: end;font-weight: bold;"></td>
+          </tr>
+      </table>
+    </div>
+
+    <div>
+      <h2 class="title-one" style="margin-top: 20px;">Endereço de entrega</h2>
+      <p id="addressLine" style="margin-top: 10px;"></p>
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: center; gap: 28px;margin-top: 60px;">
+      <img src="assets/img/icon-whats.svg" alt="ícone whatsapp" width="40">
+      <p style="
+      color: #444444;
+      font-size: 24px;
+      font-weight: 700;">
+      (11) 991234-4321
+      </p>
+    </div>
+    <p style="
+    color: #000;
+    text-align: center;
+    font-size: 16px;
+    text-align: center;
+    font-weight: 300;
+    max-width: 302px;
+    margin: auto;
+    margin-top: -15px;">
+    Caso tenha alguma dúvida ou problema com o pedido entre em contato.
+    </p>
+
+  </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const table = document.querySelector('table')
+      const totalArea = document.querySelector('.total-area')
+      const confirmationArea = document.querySelector('#confirmation-area')
+      const addressLine = document.querySelector('#addressLine')
+      const areaStatus = document.querySelector('#area-status')
+
+      document.addEventListener("loginChecked", () => {
+        if (window.user === undefined) logout();
+      })
+
+      async function getOrderInfo() {
+        let url = window.apiUrl + 'ProductOrder/' +  getParam('id')
+        let method = 'GET'
+        let headers = { 'Authorization': 'Bearer ' + localStorage.getItem('token'), 'Content-Type': 'application/json' }
+        let response = await fetch(url, { method, headers })
+        let data = await response.json()
+        return data
+      }
+
+      async function renderOrderInfo() {
+        let order = await getOrderInfo()
+
+        areaStatus.innerHTML = `
+        <div class="image-icon">
+          <img src="${getOrderStatusIcon(order.status)}" alt="icone">  
+        </div>
+        <p>${getOrderStatus(order.status)}</p>
+        `
+        
+        order.orderItems.forEach(item => {
+          const row = document.createElement('tr')
+          row.setAttribute('data-product-id', item.product.id)
+          row.innerHTML = `
+            <td>${item.quantity} x ${item.product.title}</td>
+            <td>R$ ${item.product.price.toFixed(2)} cada</td>
+            <td>Total: R$ ${(item.product.price * item.quantity).toFixed(2)}</td>`
+          table.querySelector('tbody').appendChild(row)
+        })
+
+        addressLine.innerHTML = `${order.address.street} ${order.address.number}, ${order.address.neighborhood} - ${order.address.city} - ${order.address.state} / Brasil - CEP: ${order.address.zipCode}. Complemento: ${order.address.information}.`
+        const total = order.orderItems.reduce((acc, item) => acc + (item.product.price * item.quantity), 0)
+        totalArea.innerHTML = `R$ ${total.toFixed(2)}`
+      }
+
+      renderOrderInfo()
+
+      document.getElementById('OrderNumber').innerHTML = "#" +  getParam('id').toString().padStart(3, '0')
+
+      if (getParam('confirmation') == 'true') {
+        confirmationArea.style.display = 'block'
+      }
+    
+    })
+  </script>
+</body>
+
+</html>

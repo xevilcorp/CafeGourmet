@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novo Produto</title>
+  <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/header.css">
+  <link rel="stylesheet" href="assets/form.css">
+  <style>
+    .radio-block {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 20px;
+
+      >label {
+
+        color: rgb(42, 42, 42);
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+
+        >img {
+          width: 118px;
+          height: 42px;
+        }
+      }
+
+      >input {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    .credit-card-payment-area {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    #resume-table {
+      margin-top: -10px;
+      >table {
+        width: 100%;
+        border-collapse: collapse;
+        border-top: 1px solid rgba(0, 0, 0, 0.093);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.093);
+        >tbody {
+          >tr {
+            >td {
+              padding-top: 15px;
+              padding-bottom: 15px;
+              text-align: left;
+              border-bottom: 1px solid rgba(0, 0, 0, 0.093);
+              /*&:nth-child(1) {
+                border-left: 1px solid rgba(0, 0, 0, 0.093);
+              }*/
+
+              &:nth-child(3) {
+                text-align: end;
+              }
+              >img {
+                border-radius: 10px;
+              }
+            }
+          }
+        }
+      }
+    }
+  </style>
+  <script src="js/base.js"></script>
+</head>
+
+<body>
+  <html-import link="modules/header.html"></html-import>
+
+  <!--Card resumindo os produtos da compra-->
+  <form onsubmit="return false"
+    style="margin: 40px;padding-left: 20px;padding-right: 20px;display: flex;flex-direction: column;gap: 25px; max-width: 700px;margin-left: auto; margin-right: auto;">
+    <h2 class="title-one" style="margin-top: 20px;">Resumo da Compra</h2>
+
+    <div id="resume-table">
+      <table>
+        <tbody>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2" style="text-align: left;padding: 20px 0px; font-weight: bold;">Total:</td>
+            <td class="total-area" colspan="2" style="text-align: end;font-weight: bold;"></td>
+          </tr>
+      </table>
+    </div>
+
+    <h2 class="title-one" style="margin-top: 20px;">Pagamento</h2>
+
+    <div style="display: flex;flex-direction: column; gap: 60px;margin-left: 10px; margin-top: 10px;">
+      <div class="radio-block">
+        <input type="radio" name="paymentType" id="pix" value="pix">
+        <label for="pix">
+          <img src="assets/img/pix-logo.png" alt="pix logo">
+        </label>
+      </div>
+      <div class="radio-block">
+        <input type="radio" name="paymentType" id="credit-card" value="credit-card" checked>
+        <label for="credit-card">CARTÃO DE CRÉDITO</label>
+      </div>
+    </div>
+
+
+    <div class="credit-card-payment-area">
+      <div class="input-block">
+        <label for="name">NOME</label>
+        <input type="text" name="name" id="name">
+      </div>
+      <div class="input-block">
+        <label for="cardNumber">NÚMERO DO CARTÃO</label>
+        <input type="text" name="cardNumber" id="cardNumber" >
+      </div>
+      <div style="display: flex; align-items: center; gap: 20px;width: 100%;">
+        <div class="input-block" style="width: auto; flex: 1fr;">
+          <label for="cardExpiration">VALIDADE</label>
+          <input type="text" name="cardExpiration" id="cardExpiration" placeholder="MM/AA">
+        </div>
+        <div class="input-block" style="width: auto; flex: 1fr;">
+          <label for="code">CÓDIGO</label>
+          <input type="text" name="code" id="code">
+        </div>
+      </div>
+    </div>
+
+    <div class="error-area"></div>
+
+    <button class="primary-button" style="margin-top: 50px;">
+      <p>CONFIRMAR</p>
+    </button>
+  </form>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const totalArea = document.querySelector('.total-area')
+      const button = document.querySelector('button')
+      const table = document.querySelector('table')
+      const errorArea = document.querySelector('.error-area')
+
+      document.addEventListener("loginChecked", () => {
+        if (window.user === undefined) logout();
+      })
+
+      function checkCart() {
+        if (localStorage.getItem('cart')) {
+          let cartList = JSON.parse(localStorage.getItem('cart'))
+          if (cartList.length == 0) {
+            window.location.href = 'carrinho.html'
+          }
+          cartList.forEach(item => {
+            const row = document.createElement('tr')
+            row.setAttribute('data-product-id', item.product.id)
+            row.innerHTML = `
+              <td>${item.quantity} x ${item.product.title}</td>
+              <td>R$ ${item.product.price.toFixed(2)} cada</td>
+              <td>Total: R$ ${(item.product.price * item.quantity).toFixed(2)}</td>`
+            table.querySelector('tbody').appendChild(row)
+          })
+          const total = cartList.reduce((acc, item) => acc + (item.product.price * item.quantity), 0)
+          totalArea.innerHTML = `R$ ${total.toFixed(2)}`
+        }
+        else {
+          window.location.href = 'carrinho.html'
+        }
+      }
+
+      function validate() {
+        let valid = true
+        let error = ''
+
+        if (document.querySelector('input[name="paymentType"]:checked').value == 'credit-card') {
+          const name = document.querySelector('#name')
+          const cardNumber = document.querySelector('#cardNumber')
+          const cardExpiration = document.querySelector('#cardExpiration')
+          const code = document.querySelector('#code')
+
+          if (!name.value || !cardNumber.value || !cardExpiration.value || !code.value) {
+            valid = false
+            error = 'Preencha todos os campos'
+          }
+
+          const date = new Date()
+          const month = date.getMonth() + 1
+          const year = date.getFullYear() - 2000
+          const expiration = cardExpiration.value.split('/')
+          if (expiration[1] < year || (expiration[1] == year && expiration[0] < month)) {
+            valid = false
+            error = 'Data de validade inválida'
+          }
+
+          //check card number is valid
+          if (cardNumber.value.length < 19) {
+            valid = false
+            error = 'Número do cartão inválido'
+          }
+        }
+        
+        
+        if (!valid) {
+          throw new Error(error)
+        } 
+        return valid
+      }
+
+      async function sendOrder() {
+        const name = document.querySelector('#name')
+        const cardNumber = document.querySelector('#cardNumber')
+        const cardExpiration = document.querySelector('#cardExpiration')
+        const code = document.querySelector('#code')
+
+        try {
+          button.disabled = true
+          validate()
+
+          let params = {
+            Address: JSON.parse(localStorage.getItem('address')),
+            OrderItems: JSON.parse(localStorage.getItem('cart')).map(item => {
+              return {
+                ProductId: item.product.id,
+                Quantity: item.quantity
+              }
+            }),
+            UserId: window.user.id,
+            PaymentType: document.querySelector('input[name="paymentType"]:checked').value,
+            CreditCard: {
+              Name: name.value,
+              Number: cardNumber.value,
+              Expiration: cardExpiration.value,
+              Code: code.value
+            }
+          }
+
+          let url = window.apiUrl + 'ProductOrder'
+          let method = 'POST'
+          let headers = { 'Authorization': 'Bearer ' + localStorage.getItem('token'), 'Content-Type': 'application/json' }
+          let response = await fetch(url, { method, headers, body: JSON.stringify(params) })
+          if (response.status == 201) {
+            let data = await response.json()
+            localStorage.removeItem('cart')
+            window.location.href = 'pedido.html?confirmation=true&id=' + data.id 
+          } else {
+            errorArea.innerHTML =  '<p>Não foi possível enviar o pedido, verifique os dados.</p>'
+          }
+        } catch (error) {
+          errorArea.innerHTML = `<p>${error.message}</p>`
+        }
+        finally {
+          button.disabled = false
+        }
+      }
+
+      $('#cardNumber').mask('0000 0000 0000 0000')
+      $('#cardExpiration').mask('00/00')
+      $('#code').mask('000')
+
+      button.addEventListener('click', sendOrder)
+      checkCart()
+
+    })
+  </script>
+</body>
+
+</html>

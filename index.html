@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cafeteria Gourmet</title>
+
+  <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/header.css">
+  <link rel="stylesheet" href="assets/form.css">
+  <style>
+    #grade-catalogo {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(248px, 1fr));
+      gap: 40px;
+
+      >article {
+        padding: 19px;
+        background-color: white;
+        box-shadow: 0px 3px 10px -4px rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+
+        >img {
+          width: 100%;
+          border-radius: 9px;
+          height: 194px;
+          object-fit: cover;
+        }
+
+        >.bottom-area {
+          margin-top: 9px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+
+          >.info-area {
+            >h3 {
+              color: #000;
+              font-size: 21px;
+              font-style: normal;
+              font-weight: 400;
+              line-height: normal;
+            }
+            >p {
+              color: #444;
+              font-size: 17px;
+              font-style: normal;
+              font-weight: 400;
+              line-height: normal;
+            }
+          }
+
+          >.add-to-cart {
+            width: 43px;
+            height: 43px;
+            flex-shrink: 0;
+            background-color: #61CB6C;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            &:hover {
+              cursor: pointer;
+              background-color: #4FB65C;
+            }
+
+            >img {
+              width: 24px;
+              height: 24px;
+              flex-shrink: 0;
+            }
+          }
+        }
+
+      }
+    }
+  </style>
+  <script src="js/base.js"></script>
+</head>
+
+<body>
+  <html-import link="modules/header.html"></html-import>
+
+  <main style="margin: 40px;padding-left: 20px;padding-right: 20px;display: flex;flex-direction: column;gap: 25px;margin-left: auto; margin-right: auto;">
+    <h2 class="title-one">Bebidas</h2>
+    <section id="grade-catalogo"></section>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      
+      async function getProductsCatalog() {
+        let url = window.apiUrl + 'Product';
+        let response = await fetch(url);
+        let data = await response.json();
+        return data;
+      }
+
+      async function getProduct(productId) {
+        let url = window.apiUrl + 'Product/' + productId;
+        let response = await fetch(url);
+        let data = await response.json();
+        return data;
+      }
+
+      async function addToCart(productId) {
+        let cartList = JSON.parse(localStorage.getItem('cart')) || [];
+
+        if (cartList.some(item => item.product.id === productId)) {
+          cartList = cartList.map(item => {
+            if (item.product.id === productId) {
+              item.quantity++;
+            }
+            return item;
+          })
+        } else {
+          let product = await getProduct(productId);
+          cartList.push({product, quantity: 1});
+        }
+        
+        localStorage.setItem('cart', JSON.stringify(cartList));
+        let totalQuantityCount = cartList.reduce((acc, item) => acc + item.quantity, 0);
+        document.getElementById('cart-quantity').innerText = totalQuantityCount;
+      }
+
+      async function renderProductsCatalog() {
+        let products = await getProductsCatalog();
+        let catalog = document.getElementById('grade-catalogo');
+        catalog.innerHTML = '';
+        products.forEach(product => {
+          let article = document.createElement('article');
+          article.setAttribute('data-product-id', product.id);
+          article.innerHTML = `
+            <img src="${product.imageUrl}" alt="imagem de café">
+            <div class="bottom-area">
+              <div class="info-area">
+                <h3>${product.title}</h3>
+                <p>R$ ${product.price}</p>
+              </div>
+              <button class="add-to-cart">
+                <img src="assets/img/icon-add.svg" alt="ícone de mais">
+              </button>
+            </div>
+          `;
+          article.querySelector('.add-to-cart').addEventListener('click', () => addToCart(product.id));
+          catalog.appendChild(article);
+        })
+      }
+    
+      renderProductsCatalog();
+    })
+  </script>
+</body>
+
+</html>
